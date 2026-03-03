@@ -1608,7 +1608,10 @@ Page.Base = class Base extends Page {
 		// color label + icon for job result
 		var args = this.getJobResultArgs(job);
 		var url = '#Job?id=' + job.id;
-		return '<span class="color_label ' + args.color + ' nowrap linky" onClick="Nav.go(\'' + url + '\')"><i class="mdi mdi-' + args.icon + '"></i>' + args.text + '</span>';
+		var tooltip = job.completed ? this.getNiceDateTimeText(job.completed, true) : "";
+		
+		return '<span class="color_label ' + args.color + ' nowrap linky" onClick="Nav.go(\'' + url + '\')" title="' + tooltip + '">' + 
+			'<i class="mdi mdi-' + args.icon + '"></i>' + args.text + '</span>';
 	}
 	
 	getNiceEventStatus(event) {
@@ -1627,7 +1630,12 @@ Page.Base = class Base extends Page {
 			nice_status = '<span class="color_label blue nowrap linky" onClick="Nav.go(\'' + url + '\')"><i class="mdi mdi-autorenew mdi-spin"></i>' + num_jobs + ' Active</span>';
 		}
 		else if (!num_jobs && event_state && event_state.last_job) {
-			nice_status = this.getNiceJobResultLink({ id: event_state.last_job, code: event_state.last_code, final: true });
+			nice_status = this.getNiceJobResultLink({ 
+				id: event_state.last_job, 
+				code: event_state.last_code, 
+				completed: event_state.last_completed || 0, 
+				final: true 
+			});
 		}
 		
 		return nice_status;
