@@ -470,6 +470,24 @@ Page.Base = class Base extends Page {
 			html += '</span>';
 			return html;
 		}
+		else if (job.event_revision) {
+			var event = find_object(app.events, { id: job.event });
+			if (!event) return '(None)';
+			
+			// check for current revision, display normally
+			if (event.revision == job.event_revision) return this.getNiceEvent(job.event, link);
+			
+			// show previous title and rev with different icons
+			var icon = '<i class="mdi mdi-' + ((event.type == 'workflow') ? 'clipboard-outline' : 'file-outline') + '"></i>';
+			var nice_title = job.event_title + " (rev. " + job.event_revision + ")";
+			
+			var html = '<span class="nowrap" title="' + encode_attrib_entities(nice_title) + '">';
+			html += '<a href="#Events?id=' + event.id + '&rev=' + job.event_revision + '">';
+			html += icon + '<span>' + nice_title + '</span></a>';
+			html += '</span>';
+			
+			return html;
+		}
 		else return this.getNiceEvent(job.event, link);
 	}
 	
