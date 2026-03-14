@@ -1,5 +1,17 @@
 # xyOps Changelog
 
+## Version v1.0.25
+
+> March 13, 2026
+
+- [`0df0490`](https://github.com/pixlcore/xyops/commit/0df04905b61da331e6beb55140360330d924320a): Version 1.0.25
+- [`4629790`](https://github.com/pixlcore/xyops/commit/462979044cdbc794e90dd77b31f010a4fbc1c295): Security Hardening: Strongly encourage default stock admin user to change password on first login.
+- [`d9184b4`](https://github.com/pixlcore/xyops/commit/d9184b44b4780ffbcbbb6d202637d19d2fb34228): Storage Utility CLI: Improve admin account recovery code (use config overrides, and apply default user prefs).
+- [`8930b8a`](https://github.com/pixlcore/xyops/commit/8930b8aa003471baba6680596f871f3ed3ef82f4): Security Hardening: Validate storage commands in admin_import_data API.
+- [`802d16b`](https://github.com/pixlcore/xyops/commit/802d16b008bb614aedd4418da8f71eb8aa13ba63): Security Hardening: Keep config files locked down with mode 0o600 when not running in debug mode.
+- [`8275f83`](https://github.com/pixlcore/xyops/commit/8275f838c5a942e63de8569e81c7ef11f79bea47): Security Hardening: Generate random secret key on first install.
+- [`05d8ba5`](https://github.com/pixlcore/xyops/commit/05d8ba5eb034e62e68d5ffc5c3026d2a0ddbc48b): Startup: Perform basic validation of required config props, exit loudly if missing.
+
 ## Version v1.0.24
 
 > March 13, 2026
