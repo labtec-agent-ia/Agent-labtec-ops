@@ -5762,7 +5762,7 @@ GET /api/app/echo/v1
 POST /api/app/echo/v1
 ```
 
-Diagnostic endpoint that echoes request details. Useful for testing connectivity, headers, cookies, parameter parsing, and multipart uploads. The response is pretty-printed and intentionally does not include the standard `code` field.
+Diagnostic endpoint that echoes request details. Useful for testing connectivity, headers, cookies, parameter parsing, and multipart uploads. The response does not include the standard `code` field.
 
 Parameters:
 
