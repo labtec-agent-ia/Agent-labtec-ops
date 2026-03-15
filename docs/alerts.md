@@ -131,6 +131,23 @@ Supported action types in alerts:
 
 Action conditions are either `alert_new` or `alert_cleared`. You can attach multiple actions for either condition.
 
+### Universal Alert Actions
+
+Using the [alert_universal_actions](config.md#alert_universal_actions) configuration object, you can add custom actions that should always run for all alerts (when the alert fires and/or when it clears).  By default, xyOps ships with the [Snapshot](actions.md#snapshot) action on all `alert_new` conditions:
+
+```json
+"alert_universal_actions": [
+	{
+		"enabled": true,
+		"hidden": true,
+		"condition": "alert_new",
+		"type": "snapshot"
+	}
+]
+```
+
+Add as many universal actions as you like to this array.  Just remember that the `condition` property needs to be either `alert_new` or `alert_cleared` for alerts.
+
 ## Job Control During Alerts
 
 - **Limit Jobs**: While the alert is active on a server, that server is excluded from job scheduling (prevents new jobs from launching there). Workflow parent jobs are exempt from this restriction.
