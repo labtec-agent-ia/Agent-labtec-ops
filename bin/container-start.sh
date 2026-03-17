@@ -18,7 +18,7 @@ if [ ! -f /opt/xyops/conf/config.json ]; then
 	mkdir -p /opt/xyops/conf
 	cp -a /opt/xyops/sample_conf/. /opt/xyops/conf/
 	secret_key=$(openssl rand -hex 16)
-	printf '{ "secret_key": "%s" }\n' "$secret" > /opt/xyops/conf/overrides.json
+	printf '{ "secret_key": "%s" }\n' "$secret_key" > /opt/xyops/conf/overrides.json
 fi
 
 # the path to xyops entrypoint, including options
