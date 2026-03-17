@@ -65,7 +65,7 @@ Page.Docs = class Docs extends Page.PageUtils {
 			app.setWindowTitle( title + ' | Documentation' );
 			app.setHeaderNav([
 				{ icon: 'file-document-multiple-outline', loc: '#Docs', title: 'Docs' },
-				{ icon: 'file-document-outline', loc: '#Docs/' + args.doc, title: title }
+				{ icon: 'file-document-outline', title: title }
 			]);
 			app.highlightTab( 'Docs' );
 		}
