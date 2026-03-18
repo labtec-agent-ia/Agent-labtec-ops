@@ -122,6 +122,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 				offline: item.offline,
 				label: (item.title || item.hostname).toLowerCase(), // for sorting
 				ip: item.ip,
+				autoGroup: item.autoGroup,
 				groups: item.groups,
 				grp_labels: grp_labels, // for sorting
 				cpu_cores: item.info.cpu.cores || 0,
@@ -179,7 +180,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 			var tds = [
 				'<span style="font-weight:bold">' + self.getNiceServer(item, true) + '</span>',
 				self.getNiceIP(item.ip),
-				self.getNiceGroupList(item.groups),
+				self.getNiceGroupList(item.groups, '', item.autoGroup ? '' : 'gesture-tap-button'),
 				'<i class="mdi mdi-chip">&nbsp;</i>' + (item.info.cpu.cores || 0),
 				'<i class="mdi mdi-memory">&nbsp;</i>' + get_text_from_bytes(item.info.memory.total || 0),
 				self.getNiceArch(item.info.arch),
@@ -851,7 +852,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 					
 					// row 2
 					html += '<div>';
-						html += '<div class="info_label">Groups</div>';
+						html += '<div class="info_label" id="d_vs_stat_group_label">Groups (' + (server.autoGroup ? 'Auto' : 'Manual') + ')</div>';
 						html += '<div class="info_value" id="d_vs_stat_groups">' + this.getNiceGroupList(server.groups) + '</div>';
 					html += '</div>';
 					
@@ -1241,7 +1242,8 @@ Page.Servers = class Servers extends Page.ServerUtils {
 				
 				self.updateHeaderNav();
 				// self.div.find('#d_vs_stat_label').html( server.title || 'n/a' );
-				self.div.find('#d_vs_stat_groups').html( self.getNiceGroupList(server.groups) );
+				// self.div.find('#d_vs_stat_groups').html( self.getNiceGroupList(server.groups) );
+				// self.div.find('#d_vs_stat_group_label').html( 'Groups (' + (server.autoGroup ? 'Auto' : 'Manual') + ')' );
 			} ); // api.post
 		}); // Dialog.confirm
 		
@@ -1873,6 +1875,12 @@ Page.Servers = class Servers extends Page.ServerUtils {
 			// our server came back online!
 			this.onDeactivate();
 			this.receive_snapshot({ server: app.servers[server.id], data: snapshot, online: true });
+		}
+		else {
+			// neither happened, but groups may have changed
+			server = this.server = app.servers[server.id];
+			this.div.find('#d_vs_stat_groups').html( this.getNiceGroupList(server.groups) );
+			this.div.find('#d_vs_stat_group_label').html( 'Groups (' + (server.autoGroup ? 'Auto' : 'Manual') + ')' );
 		}
 	}
 	

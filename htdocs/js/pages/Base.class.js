@@ -50,21 +50,21 @@ Page.Base = class Base extends Page {
 		return html;
 	}
 	
-	getNiceGroupList(groups, none) {
+	getNiceGroupList(groups, none, icon_override) {
 		// get formatted group list
 		var self = this;
 		if (typeof(groups) == 'string') groups = groups.split(/\,\s*/);
 		if (!groups || !groups.length) return none || '(None)';
-		return groups.map( function(group) { return self.getNiceGroup(group); } ).join(', ');
+		return groups.map( function(group) { return self.getNiceGroup(group, false, icon_override); } ).join(', ');
 	}
 	
-	getNiceGroup(item, link) {
+	getNiceGroup(item, link, icon_override) {
 		// get formatted group with icon, plus optional link
 		if (typeof(item) == 'string') item = find_object(app.groups, { id: item });
 		if (!item) return '(None)';
 		
 		var html = '<span class="nowrap" title="' + encode_attrib_entities(item.title) + '">';
-		var icon = '<i class="mdi mdi-' + (item.icon || 'server-network') + '"></i>';
+		var icon = '<i class="mdi mdi-' + (icon_override || item.icon || 'server-network') + '"></i>';
 		if (link) {
 			if (link === true) link = '#Groups?sub=view&id=' + item.id;
 			html += '<a href="' + link + '">';
