@@ -1,5 +1,14 @@
 # xyOps Changelog
 
+## Version v1.0.34
+
+> March 18, 2026
+
+- [`fae52ac`](https://github.com/pixlcore/xyops/commit/fae52acede0b48d8a9527ec75f88eaca77cc48fc): Version 1.0.34
+- [`81227d6`](https://github.com/pixlcore/xyops/commit/81227d63e8c7035ea0f32f058dbb2086147a79ce): UI Tweak: When an event has a "Run Event" action attached and enabled, change the default icon.
+- [`8bdb8f6`](https://github.com/pixlcore/xyops/commit/8bdb8f6ebd865d6ef2f3610010f21c07c3fdaa0a): UI Tweak: Apply hostname strip regex to conductor ID display, to be consistent with server hostnames.
+- [`ac17c97`](https://github.com/pixlcore/xyops/commit/ac17c97bed4750d955857b47a4266c7b129d3b2e): UI Tweak: Show different default icons for events / workflows if they are disabled.
+
 ## Version v1.0.33
 
 > March 17, 2026
