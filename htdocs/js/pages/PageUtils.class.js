@@ -2852,32 +2852,35 @@ Page.PageUtils = class PageUtils extends Page.Base {
 	
 	// Data Tree:
 	
-	getDataTree(obj) {
+	getDataTree(obj, key_tooltip_map) {
 		// get HTML for JSON tree
 		var html = '';
 		
 		var sorted_keys = Object.keys(obj).sort((a, b) => a.localeCompare(b));
 		for (var idx = 0, len = sorted_keys.length; idx < len; idx++) {
 			var key = sorted_keys[idx];
-			html += this.getDataBranch('', key, obj[key]);
+			html += this.getDataBranch('', key, obj[key], key_tooltip_map);
 		}
 		
 		return html;
 	}
 	
-	getDataBranch(path, key, value) {
+	getDataBranch(path, key, value, key_tooltip_map) {
 		var html = '';
 		var type = (value === null) ? 'null' : typeof(value);
 		
 		if (path && !key.match(/^\[\d+\]$/)) path += '.';
 		path += key;
 		
+		var tooltip = '';
+		if (key_tooltip_map && key_tooltip_map[key]) tooltip = encode_attrib_entities(key_tooltip_map[key]);
+		
 		if (type == 'object') {
 			// hash or array
 			html += `<div class="tree_row">`;
 				html += `<span class="tree_ctrl mdi mdi-minus-box-outline" onClick="$P().toggleDataBranch(this)"></span>`;
 				html += `<span class="tree_folder mdi mdi-folder-open-outline"></span>`;
-				html += `<span class="tree_key hljs-variable" data-path="${encode_attrib_entities(path)}"><b>${encode_entities(key)}</b></span>`;
+				html += `<span class="tree_key hljs-variable" data-path="${encode_attrib_entities(path)}" title="${tooltip}"><b>${encode_entities(key)}</b></span>`;
 			html += `</div>`;
 		}
 		
@@ -2885,7 +2888,7 @@ Page.PageUtils = class PageUtils extends Page.Base {
 			// recurse for array
 			html += `<div class="tree_indent expanded">`;
 			for (var idx = 0, len = value.length; idx < len; idx++) {
-				html += this.getDataBranch(path, '[' + idx + ']', value[idx]);
+				html += this.getDataBranch(path, '[' + idx + ']', value[idx], key_tooltip_map);
 			}
 			html += `</div>`;
 		}
@@ -2895,7 +2898,7 @@ Page.PageUtils = class PageUtils extends Page.Base {
 			var sorted_keys = Object.keys(value).sort((a, b) => a.localeCompare(b));
 			for (var idx = 0, len = sorted_keys.length; idx < len; idx++) {
 				var sub_key = sorted_keys[idx];
-				html += this.getDataBranch(path, sub_key, value[sub_key]);
+				html += this.getDataBranch(path, sub_key, value[sub_key], key_tooltip_map);
 			}
 			html += `</div>`;
 		}
@@ -2912,7 +2915,7 @@ Page.PageUtils = class PageUtils extends Page.Base {
 			
 			html += `<div class="tree_row">`;
 				html += `<span class="tree_file mdi mdi-${icon}"></span>`;
-				html += `<span class="tree_key hljs-variable" data-path="${encode_attrib_entities(path)}">${encode_entities(key)}</span>`;
+				html += `<span class="tree_key hljs-variable" data-path="${encode_attrib_entities(path)}" title="${tooltip}">${encode_entities(key)}</span>`;
 				html += `<span class="tree_value ${extra_class}">${encode_entities(JSON.stringify(value))}</span>`;
 			html += `</div>`;
 		}
@@ -3117,8 +3120,12 @@ Page.PageUtils = class PageUtils extends Page.Base {
 			// now load server host data
 			app.api.get( 'app/get_server', { id }, function(resp) {
 				
+				// include map of plugin IDs to titles, for tooltips
+				var key_tooltip_map = {};
+				app.plugins.forEach( function(plugin) { key_tooltip_map[plugin.id] = plugin.title; } );
+				
 				// render json tree
-				$('#d_ex_tree > .ex_tree_inner').html( self.getDataTree(resp.data.data) );
+				$('#d_ex_tree > .ex_tree_inner').html( self.getDataTree(resp.data.data, key_tooltip_map) );
 				
 				// add click handler to all keys
 				$('#d_ex_tree .tree_key').on('click', function() {
