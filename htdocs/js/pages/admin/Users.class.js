@@ -539,6 +539,7 @@ Page.Users = class Users extends Page.PageUtils {
 			content: this.getFormText({
 				// type: 'password',
 				id: 'fe_eu_password',
+				class: 'monospace',
 				spellcheck: 'false',
 				value: ''
 			}),

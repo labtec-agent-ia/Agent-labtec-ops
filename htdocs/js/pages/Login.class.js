@@ -67,6 +67,7 @@ Page.Login = class Login extends Page.Base {
 					content: this.getFormText({
 						id: 'fe_login_password',
 						type: 'password',
+						class: 'monospace',
 						spellcheck: 'false',
 						autocomplete: 'current-password'
 					}),
@@ -153,6 +154,7 @@ Page.Login = class Login extends Page.Base {
 					content: this.getFormText({
 						type: 'password',
 						id: 'fe_login_old_password',
+						class: 'monospace',
 						spellcheck: 'false',
 						autocomplete: 'off',
 						maxlength: 256,
@@ -168,6 +170,7 @@ Page.Login = class Login extends Page.Base {
 					content: this.getFormText({
 						type: 'password',
 						id: 'fe_login_new_password',
+						class: 'monospace',
 						spellcheck: 'false',
 						autocomplete: 'off',
 						maxlength: 256,
@@ -282,6 +285,7 @@ Page.Login = class Login extends Page.Base {
 					content: this.getFormText({
 						id: 'fe_ca_password',
 						type: 'password',
+						class: 'monospace',
 						spellcheck: 'false',
 						autocomplete: 'new-password'
 					}),
@@ -536,6 +540,7 @@ Page.Login = class Login extends Page.Base {
 					content: this.getFormText({
 						id: 'fe_reset_password',
 						type: 'password',
+						class: 'monospace',
 						spellcheck: 'false',
 						autocomplete: 'new-password'
 					}),

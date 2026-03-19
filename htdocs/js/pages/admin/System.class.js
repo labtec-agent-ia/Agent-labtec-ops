@@ -857,6 +857,7 @@ Page.System = class System extends Page.PageUtils {
 			content: this.getFormText({
 				type: 'password',
 				id: 'fe_sys_user_password',
+				class: 'monospace',
 				spellcheck: 'false',
 				autocomplete: 'current-password',
 				value: ''

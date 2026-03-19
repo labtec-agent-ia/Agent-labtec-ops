@@ -110,6 +110,7 @@ Page.MyAccount = class MyAccount extends Page.Base {
 				content: this.getFormText({
 					type: 'password',
 					id: 'fe_ma_old_password',
+					class: 'monospace',
 					spellcheck: 'false',
 					autocomplete: 'off',
 					maxlength: 256,
@@ -125,6 +126,7 @@ Page.MyAccount = class MyAccount extends Page.Base {
 				content: '<div class="button danger" onClick="$P().showNewPasswordField(this)"><i class="mdi mdi-account-key">&nbsp;</i>Change Password...</div><div style="display:none">' + this.getFormText({
 					type: 'password',
 					id: 'fe_ma_new_password',
+					class: 'monospace',
 					spellcheck: 'false',
 					autocomplete: 'off',
 					maxlength: 256,
