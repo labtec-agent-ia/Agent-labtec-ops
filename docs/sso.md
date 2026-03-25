@@ -608,8 +608,10 @@ Finally, make sure you set your [IP Whitelist](#ip-whitelist) to only accept hea
 The SSO subsystem can optionally launch a custom shell command to filter and transform incoming requests.  The idea is that command can read the request and construct proper headers to initiate the SSO flow.  The new headers emitted by the command are injected back into the request as it is sent through SSO login.  This is for complex integrations where a simple [header map](#header-map) will not suffice, and additional logic needs to take place.  The command itself should be placed into the [SSO configuration](#configuration) object as a property named `command`.  Example:
 
 ```json
-"command": "npx xyplug-sso-aws-alb@1.0.0"
+"command": "npx -y @pixlcore/xyplug-sso-aws-alb@1.0.0"
 ```
+
+This example uses the [xyOps AWS ALB SSO Plugin](https://github.com/pixlcore/xyplug-sso-aws-alb).
 
 As with other xyOps Plugin types, communication with the command follows the [xyOps Wire Protocol](xywp.md).  Request metadata is sent to the command process via JSON over STDIN, and the process is expected to emit JSON over STDOUT.  See below for details.
 
