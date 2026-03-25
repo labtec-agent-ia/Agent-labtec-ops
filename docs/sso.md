@@ -151,6 +151,7 @@ Here are descriptions of all the SSO properties:
 | `replace_privileges` | Boolean | Set this to `true` to replace **all** the user's privileges with those mapped via `group_role_map` only.  See [User Groups](#user-groups) below for details. |
 | `admin_bootstrap` | String | Temporarily assign full administrator privileges to a given user.  This is used for bootstrapping the system on initial setup.  See [Admin Bootstrap](#admin-bootstrap) for more. |
 | `logout_url` | String | Set this to the URL to redirect the user to after xyOps performs its own logout.  See [Logging Out](#logging-out) below for details. |
+| `command` | String | Optional custom shell command to filter all incoming SSO requests and inject headers.  See [Custom Command](#custom-command) below for details. |
 
 ### Header Map
 
@@ -601,6 +602,129 @@ Finally, make sure you set your [IP Whitelist](#ip-whitelist) to only accept hea
 ```json
 "whitelist": ["127.0.0.1", "::1/128"]
 ```
+
+## Custom Command
+
+The SSO subsystem can optionally launch a custom shell command to filter and transform incoming requests.  The idea is that command can read the request and construct proper headers to initiate the SSO flow.  The new headers emitted by the command are injected back into the request as it is sent through SSO login.  This is for complex integrations where a simple [header map](#header-map) will not suffice, and additional logic needs to take place.  The command itself should be placed into the [SSO configuration](#configuration) object as a property named `command`.  Example:
+
+```json
+"command": "npx xyplug-sso-aws-alb@1.0.0"
+```
+
+As with other xyOps Plugin types, communication with the command follows the [xyOps Wire Protocol](xywp.md).  Request metadata is sent to the command process via JSON over STDIN, and the process is expected to emit JSON over STDOUT.  See below for details.
+
+### Command Input
+
+When the SSO custom command is invoked, it is passed a JSON document on STDIN (compressed to a single line).  This should contain everything needed to validate the request and construct the proper headers for SSO login.  The following top-level properties will be present in the object:
+
+| Property Name | Type | Description |
+|---------------|------|-------------|
+| `xy` | Number | Indicates the [xyOps Wire Protocol](xywp.md) version.  Will be set to `1`. |
+| `type` | String | Indicates the type of action, which will be set to `sso`. |
+| `config` | Object | The complete [SSO Configuration](#configuration) object is included for the command to use. |
+| `method` | String | The request method, which should always be `GET`. |
+| `url` | String | The request URI path, which should always be `/`. |
+| `headers` | Object | The request headers object (all header names are lower-cased). |
+| `cookies` | Object | Any cookies found in the `Cookie` header are parsed and placed into this object. |
+| `id` | String | An internal ID for the request, used for logging. |
+| `ip` | String | The "public" IP address of the request (best effort guess).  See [args.ip](https://github.com/jhuckaby/pixl-server-web#argsip). |
+| `ips` | Array | All the IPs of the request, including forwarded proxy IPs.  See [args.ips](https://github.com/jhuckaby/pixl-server-web#argsips). |
+
+Here is an example JSON document sent to the SSO command's STDIN (pretty-printed for display purposes):
+
+```json
+{
+	"xy": 1,
+	"type": "sso",
+	"config": {
+		/* Entire sso.json config contents here */
+	},
+	"method": "GET",
+	"url": "/",
+	"headers": {
+		"host": "local.xyops.io:5523",
+		"connection": "keep-alive",
+		"sec-ch-ua": "\"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"Google Chrome\";v=\"146\"",
+		"sec-ch-ua-mobile": "?0",
+		"sec-ch-ua-platform": "\"macOS\"",
+		"upgrade-insecure-requests": "1",
+		"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+		"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+		"sec-fetch-site": "none",
+		"sec-fetch-mode": "navigate",
+		"sec-fetch-user": "?1",
+		"sec-fetch-dest": "document",
+		"accept-encoding": "gzip, deflate, br, zstd",
+		"accept-language": "en-US,en;q=0.9",
+		"x-amzn-oidc-identity": "jhuckaby",
+		"x-amzn-oidc-data": "BfAmkJ8BxEIeI4NVu4qpZn6usqkx8J5WKZvSikTS87ImJDhacUsV3wCPmS5RC58n8JDTwrx-90ns_FefwQRCQM",
+		"ssl": 1,
+		"https": 1
+	},
+	"cookies": {},
+	"id": "r2",
+	"ip": "127.0.0.1",
+	"ips": [
+		"127.0.0.1"
+	]
+}
+```
+
+### Command Output
+
+After your custom command validates and processes the request, it needs to send output back to xyOps.  This is done by way of a JSON document printed to STDOUT.  It should be compressed onto one line, and contain the following top-level properties:
+
+| Property Name | Type | Description |
+|---------------|------|-------------|
+| `xy` | Number | Indicates the [xyOps Wire Protocol](xywp.md) version.  This must be set to `1`. |
+| `code` | Number | Zero (`0`) indicates success, any other value is an error. |
+| `description` | String | Optional error message, will be displayed to the user if `code` is non-zero. |
+| `headers` | Object | New headers to inject into the request for SSO login. |
+
+Here is an example output (pretty-printed for display purposes):
+
+```json
+{
+	"xy": 1,
+	"code": 0,
+	"headers": {
+		"x-forwarded-user": "jhuckaby",
+		"x-forwarded-name": "Joseph Huckaby",
+		"x-forwarded-email": "jhuckaby@example.com",
+		"x-forwarded-groups": "pixlcore:owners"
+	}
+}
+```
+
+The idea here is that the command validates and parses the request, using whatever bits of information are required.  In the above example it's these two headers which contain the encoded user information:
+
+```
+"x-amzn-oidc-identity": "jhuckaby",
+"x-amzn-oidc-data": "BfAmkJ8BxEIeI4NVu4qpZn6usqkx8J5WKZvSikTS87ImJDhacUsV3wCPmS5RC58n8JDTwrx-90ns_FefwQRCQM",
+```
+
+After decoding the data, the command then produces properly-formatted trusted headers (which match the [Header Map](#header-map)) to initiate the SSO login process:
+
+```
+"x-forwarded-user": "jhuckaby",
+"x-forwarded-name": "Joseph Huckaby",
+"x-forwarded-email": "jhuckaby@example.com",
+"x-forwarded-groups": "pixlcore:owners"
+```
+
+If something goes wrong and the request cannot be validated, your command should send back a non-zero `code` along with a `description` which will be logged and displayed to the user.  Example:
+
+```json
+{
+	"xy": 1,
+	"code": 1,
+	"description": "Failed to validate request: Missing x-amzn-oidc-identity header"
+}
+```
+
+### Command Debugging
+
+To debug custom commands, set your [debug_level](config.md#debug_level) to `9`, and watch the `logs/SSO.log` log.  It will contain the full command request and response, including raw STDOUT and STDERR.
 
 ## Live Production
 
