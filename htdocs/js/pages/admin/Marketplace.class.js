@@ -306,9 +306,9 @@ Page.Marketplace = class Marketplace extends Page.PageUtils {
 		html += '<div class="box_content table">';
 		
 		html += this.getSortableTable( this.products, table_opts, function(product) {
-			var logo_url = app.base_api_url + '/app/marketplace?id=' + encodeURIComponent(product.id) + '&logo=1';
+			var logo_url = app.base_api_url + '/app/marketplace?id=' + encodeURIComponent(product.id) + '&logo=1&version=' + product.versions[0];
 			
-			var combo = `<div class="product_result" data-product="${product.id}" onClick="$P().doViewProduct(this)" style="background-image:url(${logo_url}">`;
+			var combo = `<div class="product_result lazy" data-product="${product.id}" onClick="$P().doViewProduct(this)" data-url="${logo_url}">`;
 				combo += `<div class="product_title ellip">${product.title}</div>`;
 				combo += `<div class="product_desc ellip">${ inline_marked(product.description) }</div>`;
 			combo += `</div>`;
@@ -330,6 +330,28 @@ Page.Marketplace = class Marketplace extends Page.PageUtils {
 		$results.html( html ).buttonize();
 		
 		this.cleanupBoxButtonFloater();
+		this.lazyLoadImages();
+	}
+	
+	lazyLoadImages() {
+		// find all lazy images intersecting with the viewport, and trigger a load on them
+		// (called via onScrollDelay)
+		this.div.find('.lazy').filter(function() {
+			var rect = this.getBoundingClientRect();
+			var vw = window.innerWidth;
+			var vh = window.innerHeight;
+			return (
+				rect.bottom >= 0 &&
+				rect.right >= 0 &&
+				rect.top <= vh &&
+				rect.left <= vw
+			);
+		}).each( function() {
+			var $this = $(this);
+			$this.removeClass('lazy');
+			$this.css('background-image', 'url(' + $this.data('url') + ')');
+			Debug.trace('lazy', "Lazy-loading image: " + $this.data('url'));
+		} );
 	}
 	
 	getNiceProductType(product) {
@@ -402,15 +424,19 @@ Page.Marketplace = class Marketplace extends Page.PageUtils {
 			{ icon: type_def.icon, title: product.title }
 		]);
 		
-		var install_btn_text = installed ? `Upgrade ${ucfirst(product.type)}...` : `Install ${ucfirst(product.type)}...`;
+		var install_btn_text = installed ? `Upgrade...` : `Install ${ucfirst(product.type)}...`;
 		var install_btn_icon = installed ? 'package-up' : 'package-down';
 		var install_btn_class = 'default';
-		
-		if (installed && (installed.marketplace.version == product.versions[0])) install_btn_class = 'secondary';
-		
 		var show_vault = false;
-		var env = installed.env || product.env || null;
-		if (installed && env && first_key(env)) show_vault = true;
+		var full_install_btn = false;
+		
+		if (installed) {
+			if (installed.marketplace.version == product.versions[0]) install_btn_class = 'secondary';
+			else full_install_btn = true;
+			
+			var env = installed.env || product.env || null;
+			if (env && first_key(env)) show_vault = true;
+		}
 		
 		// summary grid
 		html += '<div class="box">';
@@ -418,7 +444,13 @@ Page.Marketplace = class Marketplace extends Page.PageUtils {
 				html += product.title;
 				
 				if (installed) {
-					html += '<div class="button right icon ' + install_btn_class + '" title="' + install_btn_text + '" onClick="$P().do_install_select_version()"><i class="mdi mdi-package-up"></i></div>';
+					if (full_install_btn) {
+						html += '<div class="button right ' + install_btn_class + '" title="' + install_btn_text + '" onClick="$P().do_install_select_version()"><i class="mdi mdi-package-up">&nbsp;</i><span>' + install_btn_text + '</span></div>';
+					}
+					else {
+						html += '<div class="button right icon ' + install_btn_class + '" title="' + install_btn_text + '" onClick="$P().do_install_select_version()"><i class="mdi mdi-package-up"></i></div>';
+					}
+					
 					html += '<div class="button right secondary icon" title="Clone for editing..." onClick="$P().do_clone()"><i class="mdi mdi-file-edit-outline"></i></div>';
 					if (show_vault) html += '<div class="button right secondary icon" title="Secret Vault..." onClick="$P().go_vault()"><i class="mdi mdi-shield-lock-outline"></i></div>';
 				}
@@ -851,6 +883,11 @@ Page.Marketplace = class Marketplace extends Page.PageUtils {
 		};
 		
 		this.highlightCodeBlocks('#dialog .markdown-body');
+	}
+	
+	onScrollDelay() {
+		// called on scroll (debounced)
+		if (this.args && (this.args.sub == 'search')) this.lazyLoadImages();
 	}
 	
 	onDeactivate() {

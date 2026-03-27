@@ -277,7 +277,7 @@ If your plugin uses [secrets](secrets.md), you can provide a hint so that xyOps 
 
 You can optionally provide default values as well, but leaving them blank is usually best.
 
-By providing this information, xyOps will present the user with a "Secret Vault" button in the top header of your marketplace product page (after installation).  Clicking it will start a new secret vault draft, with the title, plugin and secret variable names pre-populated for the user.  Also, if your Plugin already has a secret vault assigned to it, the button will simply redirect the user to the vault page.
+By providing this information, xyOps will present the user with a "Secret Vault" button in the top header of your marketplace product page (after installation).  Clicking it will start a new secret vault draft, with the title, plugin and secret variable names pre-populated for the user.  Or, if your Plugin already has a secret vault assigned to it, the button will simply redirect the user to the existing vault page.
 
 ## Self Distribution
 
