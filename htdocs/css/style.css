@@ -1615,7 +1615,7 @@ body.dark .box_buttons.floater {
 }
 
 .plugin_param_editor_cont select {
-	background: var(--shadow-color);
+	background: var(--shadow-color) !important;
 }
 
 body.dark .plugin_param_editor_cont textarea, body.dark .plugin_param_editor_cont input, body.dark .plugin_param_editor_cont select {
