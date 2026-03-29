@@ -3201,13 +3201,13 @@ Page.Events = class Events extends Page.PageUtils {
 			});
 		}
 		else {
-			// new token, create plain key for copying
+			// new token (or user hasn't saved yet), offer plain key for copying
 			html += this.getFormRow({
 				id: 'd_et_magic_token',
 				label: 'Magic Links:',
 				content: this.getFormText({
 					id: 'fe_et_magic_token',
-					value: get_unique_id(64),
+					value: trigger.key || get_unique_id(64),
 					style: 'display:none',
 					'data-plainkey': '1'
 				}) + `<div class="button small secondary" onClick="$P().copyMagicLink()"><i class="mdi mdi-link-variant-plus">&nbsp;</i>Copy Direct Link</div>` + 
