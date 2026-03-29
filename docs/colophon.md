@@ -18,7 +18,6 @@ We stand on the shoulders of giants.  xyOps was built using these awesome open s
 | [codemirror](https://www.npmjs.com/package/codemirror) | Full-featured in-browser code editor. | MIT |
 | [diff](https://www.npmjs.com/package/diff) | JavaScript text diff implementation. | BSD-3-Clause |
 | [jexl](https://www.npmjs.com/package/jexl) | Context-based expression language parser and evaluator. | MIT |
-| [jimp](https://www.npmjs.com/package/jimp) | Image processing library written entirely in JavaScript. | MIT |
 | [jquery](https://www.npmjs.com/package/jquery) | JavaScript library for DOM operations. | MIT |
 | [juice](https://www.npmjs.com/package/juice) | Inline CSS into HTML source. | MIT |
 | [marked](https://www.npmjs.com/package/marked) | Fast Markdown parser. | MIT |
