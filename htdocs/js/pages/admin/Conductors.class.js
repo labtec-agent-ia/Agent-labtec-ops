@@ -75,7 +75,7 @@ Page.Conductors = class Conductors extends Page.PageUtils {
 			var row = [
 				'<div class="td_big">' + self.getNiceMaster(item) + '</div>',
 				status,
-				'<div style=""><i class="mdi mdi-tag-text-outline">&nbsp;</i>v' + (item.version || '-') + '</div>',
+				'<div id="d_ec_ver_' + item.id + '"><i class="mdi mdi-tag-text-outline">&nbsp;</i>v' + (item.version || '-') + '</div>',
 				'<div style=""><i class="mdi mdi-chip">&nbsp;</i>' + short_float(item.stats.load || 0) + '</div>',
 				'<div style=""><i class="mdi mdi-timer-outline">&nbsp;</i>' + item.ping + ' ms</div>',
 				'<div style="">' + (item.date ? self.getNiceUptime( app.epoch - item.date ) : 'n/a') + '</div>',
@@ -90,6 +90,46 @@ Page.Conductors = class Conductors extends Page.PageUtils {
 		
 		this.div.html( html );
 		this.addPageDescription();
+		this.checkAllVersions();
+	}
+	
+	checkAllVersions() {
+		// make sure all versions are up to date, highlight outdated ones in red
+		var self = this;
+		
+		// fetch data if needed
+		if (!this.latestMasterVersion) {
+			app.api.get( 'app/get_master_releases', {}, function(resp) {
+				// releases[0] is always `latest` (unless airgapped), releases[1] is the latest version
+				if (resp && resp.releases && resp.releases[1]) {
+					self.latestMasterVersion = resp.releases[1];
+					self.checkAllVersions();
+				}
+			});
+			return;
+		}
+		
+		var latest_int = get_int_version( this.latestMasterVersion.replace(/^v/, '') );
+		
+		this.masters.forEach( function(item) {
+			// decorate as needed
+			if (!item.version || !item.online) return;
+			var master_int = get_int_version( item.version );
+			if (master_int < latest_int) {
+				// outdated!
+				self.div.find('#d_ec_ver_' + CSS.escape(item.id)).html(
+					'<button class="link danger" style="color:var(--red); font-weight:bold;" data-host="' + item.id + '" onClick="$P().go_nav_upgrade(this)" title="xyOps version is outdated."><i class="mdi mdi-alert-rhombus">&nbsp;</i>v' + item.version + '</span>'
+				);
+			}
+		} );
+	}
+	
+	go_nav_upgrade(elem) {
+		// jump over to system tab and open the upgrade dialog with master pre-selected
+		if (!app.isAdmin()) return app.doError("Administrator privileges required to upgrade servers.");
+		
+		var host_id = $(elem).data('host');
+		Nav.go('System?upgrade_master=' + host_id);
 	}
 	
 	do_master_cmd(idx, cmds) {

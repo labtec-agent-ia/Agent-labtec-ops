@@ -154,6 +154,9 @@ Page.System = class System extends Page.PageUtils {
 		this.renderInternalJobs();
 		this.renderWebSockets();
 		// this.addPageDescription();
+		
+		if (this.args.upgrade_server) this.do_upgrade_satellite([ this.args.upgrade_server ]);
+		if (this.args.upgrade_master) this.do_upgrade_masters([ this.args.upgrade_master ]);
 	}
 	
 	renderStat(key, value) {
@@ -666,7 +669,7 @@ Page.System = class System extends Page.PageUtils {
 		} ); // api resp
 	}
 	
-	do_upgrade_satellite() {
+	do_upgrade_satellite(default_targets) {
 		// upgrade satellite on selected worker servers
 		var self = this;
 		var html = '';
@@ -683,7 +686,7 @@ Page.System = class System extends Page.PageUtils {
 					this.buildOptGroup(app.groups, config.ui.menu_bits.wf_targets_groups, 'server-network'),
 					this.buildServerOptGroup(config.ui.menu_bits.wf_targets_servers, 'router-network', true)
 				),
-				values: [],
+				values: default_targets || [],
 				'data-hold': 1,
 				'data-shrinkwrap': 1
 			})
@@ -756,7 +759,7 @@ Page.System = class System extends Page.PageUtils {
 		} ); // api.get
 	}
 	
-	do_upgrade_masters() {
+	do_upgrade_masters(default_targets) {
 		// upgrade selected masters
 		var self = this;
 		var html = '';
@@ -778,7 +781,7 @@ Page.System = class System extends Page.PageUtils {
 			content: this.getFormMenuMulti({
 				id: 'fe_sys_multi_targets',
 				options: masters,
-				values: [],
+				values: default_targets || [],
 				'data-hold': 1,
 				'data-shrinkwrap': 1
 			})

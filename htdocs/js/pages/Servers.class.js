@@ -185,7 +185,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 				'<i class="mdi mdi-memory">&nbsp;</i>' + get_text_from_bytes(item.info.memory.total || 0),
 				self.getNiceArch(item.info.arch),
 				self.getNiceShortOS(item.info.os),
-				'<i class="mdi mdi-tag-text-outline">&nbsp;</i>v' + (item.info.satellite || '0.0.0'),
+				'<div id="d_es_sat_ver_' + item.id + '"><i class="mdi mdi-tag-text-outline">&nbsp;</i>v' + (item.info.satellite || '0.0.0') + '</div>',
 				item.info.booted ? self.getNiceUptime( now - item.info.booted ) : 'n/a',
 				'<div id="d_es_server_jobs_' + item.id + '">' + nice_jobs + '</div>',
 				nice_alerts // no need for div here: alert change redraws entire table
@@ -209,6 +209,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 		this.div.html( html ).buttonize();
 		this.applyTableFilters();
 		this.addPageDescription();
+		this.checkAllSatelliteVersions();
 		
 		SingleSelect.init( this.div.find('#fe_es_filter') );
 		
@@ -216,6 +217,45 @@ Page.Servers = class Servers extends Page.ServerUtils {
 			this.showAddServerDialog();
 			delete this.args.add;
 		}
+	}
+	
+	checkAllSatelliteVersions() {
+		// make sure all versions are up to date, highlight outdated ones in red
+		var self = this;
+		
+		// fetch data if needed
+		if (!this.latestSatVersion) {
+			app.api.get( 'app/get_satellite_releases', {}, function(resp) {
+				// releases[0] is always `latest` (unless airgapped), releases[1] is the latest version
+				if (resp && resp.releases && resp.releases[1]) {
+					self.latestSatVersion = resp.releases[1];
+					self.checkAllSatelliteVersions();
+				}
+			});
+			return;
+		}
+		
+		var latest_int = get_int_version( this.latestSatVersion.replace(/^v/, '') );
+		
+		this.servers.forEach( function(server) {
+			// decorate as needed
+			if (!server.info || !server.info.satellite) return;
+			var server_int = get_int_version( server.info.satellite );
+			if (server_int < latest_int) {
+				// outdated!
+				self.div.find('#d_es_sat_ver_' + server.id).html(
+					'<button class="link danger" style="color:var(--red); font-weight:bold;" data-server="' + server.id + '" onClick="$P().go_nav_upgrade(this)" title="xySat version is outdated."><i class="mdi mdi-alert-rhombus">&nbsp;</i>v' + server.info.satellite + '</span>'
+				);
+			}
+		} );
+	}
+	
+	go_nav_upgrade(elem) {
+		// jump over to system tab and open the upgrade dialog with server pre-selected
+		if (!app.isAdmin()) return app.doError("Administrator privileges required to upgrade servers.");
+		
+		var server_id = $(elem).data('server');
+		Nav.go('System?upgrade_server=' + server_id);
 	}
 	
 	go_server_search() {
@@ -847,7 +887,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 					
 					html += '<div>';
 						html += '<div class="info_label">xySat Version</div>';
-						html += '<div class="info_value"><i class="mdi mdi-tag-text-outline">&nbsp;</i>v' + (server.info.satellite || '0.0.0') + '</div>';
+						html += '<div class="info_value" id="d_vs_sat_ver"><i class="mdi mdi-tag-text-outline">&nbsp;</i>v' + (server.info.satellite || '0.0.0') + '</div>';
 					html += '</div>';
 					
 					// row 2
@@ -1065,6 +1105,7 @@ Page.Servers = class Servers extends Page.ServerUtils {
 		this.setupMonitors();
 		this.setupUpcomingJobs();
 		this.setupAlertHistoryDayGraph();
+		this.checkSatelliteVersion();
 		
 		if (online) {
 			// some components are online-only
@@ -1079,6 +1120,34 @@ Page.Servers = class Servers extends Page.ServerUtils {
 		}
 		
 		// SingleSelect.init( this.div.find('#fe_vs_mode, #fe_vs_year') );
+	}
+	
+	checkSatelliteVersion() {
+		// make sure version is up to date, highlight outdated in red
+		var self = this;
+		var server = this.server;
+		if (!server || !server.info || !server.info.satellite) return;
+		
+		// fetch data if needed
+		if (!this.latestSatVersion) {
+			app.api.get( 'app/get_satellite_releases', {}, function(resp) {
+				// releases[0] is always `latest` (unless airgapped), releases[1] is the latest version
+				if (resp && resp.releases && resp.releases[1]) {
+					self.latestSatVersion = resp.releases[1];
+					self.checkSatelliteVersion();
+				}
+			});
+			return;
+		}
+		
+		var latest_int = get_int_version( this.latestSatVersion.replace(/^v/, '') );
+		var server_int = get_int_version( server.info.satellite );
+		if (server_int < latest_int) {
+			// outdated!
+			this.div.find('#d_vs_sat_ver').html(
+				'<button class="link danger" style="color:var(--red); font-weight:bold;" data-server="' + server.id + '" onClick="$P().go_nav_upgrade(this)" title="xySat version is outdated."><i class="mdi mdi-alert-rhombus">&nbsp;</i>v' + server.info.satellite + '</span>'
+			);
+		}
 	}
 	
 	setupUpcomingJobs() {
