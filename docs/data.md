@@ -892,7 +892,7 @@ If the [Job.state](#job-state) is `queued`, this property will indicate what pos
 
 ### Job.serverData
 
-While the job is running, i.e. in the data passed to the Event Plugin, the job object will contain a `serverData` property.  This will be a copy of the [Server.userData](#server-userdata) object, if applicable for the current server.
+While the job is running, i.e. in the data passed to the Event Plugin on the remote server, the job object will contain a `serverData` property.  This will be a copy of the [Server.userData](#server-userdata) object, if applicable for the current server.
 
 ### Job.invisible
 
@@ -901,6 +901,17 @@ If set to `true`, the job is running invisibly to the UI.  See [Quiet Trigger](t
 ### Job.ephemeral
 
 If set to `true`, the job will self-delete upon completion.  See [Quiet Trigger](triggers.md#quiet) for details.
+
+### Job.versions
+
+While the job is running, i.e. in the data passed to the Event Plugin on the remote server, the job object will contain a `versions` property.  This will be an object containing various version numbers the job can use to determine feature availability, etc.  Example:
+
+```json
+"versions": {
+	"xyops": "1.0.42",
+	"xysat": "1.0.14"
+}
+```
 
 ## Monitor
 
