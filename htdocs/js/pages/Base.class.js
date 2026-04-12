@@ -1648,7 +1648,11 @@ Page.Base = class Base extends Page {
 				case 'user': return '<i class="mdi mdi-account">&nbsp;</i>User';
 				case 'key': return '<i class="mdi mdi-key">&nbsp;</i>API Key';
 				case 'action': return '<i class="mdi mdi-eye-outline">&nbsp;</i>Action';
+				case 'alert': return '<i class="mdi mdi-bell-outline">&nbsp;</i>Alert';
 				case 'workflow': return '<i class="mdi mdi-clipboard-flow-outline">&nbsp;</i>Workflow';
+				case 'magic': return '<i class="mdi mdi-link-variant">&nbsp;</i>Magic Link';
+				case 'startup': return '<i class="mdi mdi-desktop-classic">&nbsp;</i>Startup';
+				default: return ucfirst(source);
 			}
 		} ).join(', ');
 	}
