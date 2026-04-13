@@ -4,7 +4,7 @@ xyOps is built atop the [pixl-server-storage](https://github.com/jhuckaby/pixl-s
 
 This is important because xyOps has **two very different storage workloads**:
 
-- **Data**: Lots of small JSON records, used in lists, hashes, indexes, jon data, monitoring data, and general app metadata.
+- **Data**: Lots of small JSON records, used in lists, hashes, indexes, job data, monitoring data, and general app metadata.
 - **Files**: Bucket files, ticket attachments, user uploads, avatars, job files, compressed job logs, and other binary payloads.
 
 Some engines can serve both roles really well, namely [MinIO](#minio) and [RustFS](#rustfs), because they provide very fast S3-compatible object storage on premises.  However, most of the other engines only handle one side of the workload well, so you should generally use a [Hybrid](https://github.com/jhuckaby/pixl-server-storage#hybrid) configuration for them.
