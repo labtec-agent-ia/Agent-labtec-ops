@@ -151,6 +151,16 @@ Behavior when servers are offline:
 
 Alerts can optionally suppress job launches on a specific server, so a server under alert may be excluded from selection until it clears.  This feature is configured at the alert level (see [Alerts](alerts.md) for more details).
 
+## Max Jobs Per Server
+
+You can set a *per-server* maximum concurrent job limit.  So for example you can configure some of your underpowered servers to limit the number of jobs they can run concurrently.  This can be configured on the server details page by clicking the "Edit Server" button, or via the [update_server](api.md#update_server) API.  The default is no limit.
+
+When a server is maxed out and a new job is starting, the way it works is that the server is "removed" from consideration when the server is being chosen from the event targets.  So any alternate servers with available "slots" will be chosen instead (assuming your event targets have multiple servers or groups).
+
+If no servers are available due to max jobs, the behavior is the same as if the servers were unavailable for other reasons (i.e. servers offline, or blocked due to active alerts, etc.).  If the event has [queuing](limits.md#max-queue-limit) enabled, then the job will automatically queue up until a server becomes available.
+
+You can also set defaults for the max jobs per server at the group level, so you don't have to edit each of your servers individually.  To do this, simply edit the group, and you will see a new "Max Jobs Per Server" field.  If a server is a member of multiple groups, the group with the lowest max jobs per server prevails.
+
 ## User Data
 
 xyOps can store arbitrary data with each server, which is called the "user data".  This is a freeform object stored as JSON, which can contain any data you want (including nested objects / arrays).  The user data is automatically passed to all running jobs on the server, and can also be used for custom event targeting.
