@@ -114,3 +114,5 @@ xyOps will always be open-licensed, and always OSI-approved. No rug pulls.
 xyOps™ is licensed under the **BSD-3-Clause** license.
 
 See [LICENSE.md](https://github.com/pixlcore/xyops/blob/main/LICENSE.md) for full license text.
+
+Sirlanne leia.
